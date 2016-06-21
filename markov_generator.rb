@@ -37,15 +37,15 @@ class Entry
 
   def recalculate_determiner
     current_end = 0
-    puts "Preceding Word: #{@preceding_word}"
+    #puts "Preceding Word: #{@preceding_word}"
     @words.each_pair do |key, value|
       new_end = current_end + (value.prob(@total_words).round(ROUND_VALUE) * PRECISION).round
-      puts "\t#{key}\t prob\t#{value.prob(@total_words).round(ROUND_VALUE)}\t [#{current_end}, #{new_end}]"
+      #puts "\t#{key}\t prob\t#{value.prob(@total_words).round(ROUND_VALUE)}\t [#{current_end}, #{new_end}]"
       @determiner.fill(key, current_end..new_end)
       current_end = new_end
     end
     if current_end != PRECISION
-      puts current_end
+      #puts current_end
     end
   end
 
@@ -61,7 +61,11 @@ end
 freq = Hash.new
 # 0..-2 gives from the first element to the second to last element
 # [0,1,2,3,4][0..-2] => [0,1,2,3]
-ARGV[0..-2].each do |f|
+ARGV.each do |f|
+  if !f.end_with?(".txt")
+    next
+  end
+
   words = File.open(f, 'r').read.split(' ')
   words.each_cons(2) do |word_tuple|
     key = word_tuple.first.downcase
