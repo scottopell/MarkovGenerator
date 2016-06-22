@@ -1,18 +1,5 @@
 # USAGE:
 # ./markov_generator file1 [file2 file3] [seed_word]
-require 'pry'
-
-class Word
-  attr_accessor :count, :string
-  def initialize string
-    @count = 0
-    @string = string
-  end
-
-  def prob total_count
-    @count.to_f / total_count
-  end
-end
 
 class MarkovEntry
   attr_accessor :total_words
@@ -29,14 +16,14 @@ class MarkovEntry
     @total_words += 1
 
     if @words[word].nil?
-      @words[word] = Word.new word
+      @words[word] = 0
     end
-    @words[word].count += 1
+    @words[word] += 1
   end
 
   def calculate_probabilities
     # inverse transform sampling
-    frequencies = @words.values.collect{|w| w.count}
+    frequencies = @words.values
     @cumulative = Array.new frequencies.length, 0
     @cumulative[0] = frequencies[0]
     frequencies.each_with_index do |f, ind|
