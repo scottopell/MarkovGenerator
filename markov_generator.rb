@@ -39,25 +39,31 @@ class MarkovEntry
 end
 
 freq = Hash.new
-ARGV.each do |f|
-  if !f.end_with?(".txt")
-    next
-  end
-
-  words = File.open(f, 'r').read.split(' ')
-  words.each_cons(2) do |word_tuple|
-    key = word_tuple.first.downcase
-    if freq[key].nil?
-      freq[key] = MarkovEntry.new key
-    end
-    freq[key].add_word word_tuple.last.downcase
-  end
-end
-
 total_words = 0
-freq.each_pair do |key, value|
-  value.calculate_probabilities
-  total_words += value.total_words
+
+if File.exist?('marshalled')
+  freq = Marshal.load(File.open('marshalled', 'rb').read)
+  total_words = freq.each_value.map{|v| v.total_words }.reduce(total_words, :+)
+else
+  ARGV.each do |f|
+    if !f.end_with?(".txt")
+      next
+    end
+
+    words = File.open(f, 'r').read.split(' ')
+    words.each_cons(2) do |word_tuple|
+      key = word_tuple.first.downcase
+      if freq[key].nil?
+        freq[key] = MarkovEntry.new key
+      end
+      freq[key].add_word word_tuple.last.downcase
+    end
+  end
+
+  freq.each_pair do |key, value|
+    value.calculate_probabilities
+    total_words += value.total_words
+  end
 end
 
 puts "Model contains #{total_words} words"
@@ -81,3 +87,6 @@ loop do
   end
 end
 puts '"'
+
+f = File.open("marshalled", "w")
+f.write(Marshal.dump(freq))
